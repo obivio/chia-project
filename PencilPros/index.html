@@ -29,14 +29,20 @@
         ];
 
         function addToCart(id) {
-            let cart = JSON.parse(localStorage.getItem("cart")) || [];
-            const existing = cart.find(item => item.id === id);
-            if (existing) existing.qty += 1;
-            else cart.push({ id: id, qty: 1 });
-            localStorage.setItem("cart", JSON.stringify(cart));
-            updateCartCount();
-            alert('Added to cart!');
-        }
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    // Check if item already exists
+    const existing = cart.find(item => item.id === id);
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        cart.push({ id: id, qty: 1 });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartCount();
+    alert("Added to cart!");
+}
 
         function updateCartCount() {
             let cart = JSON.parse(localStorage.getItem("cart")) || [];
