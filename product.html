@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PencilPros | Product</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>PencilPros</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+        </nav>
+    </header>
+
+    <main>
+        <div id="product-container" class="product-page"></div>
+    </main>
+
+    <script>
+        const products = [
+            { id: 0, name: "UltraSmooth Pencil", price: 2.99, description: "A perfectly balanced graphite pencil for everyday writing.", img: "https://via.placeholder.com/300" },
+            { id: 1, name: "Premium Notebook", price: 7.49, description: "A 200-page lined notebook with reinforced binding.", img: "https://via.placeholder.com/300" },
+            { id: 2, name: "Gel Pen Set", price: 5.99, description: "Smooth gel ink pens in 5 vibrant colors.", img: "https://via.placeholder.com/300" },
+            { id: 3, name: "Highlighter Pack", price: 4.99, description: "Bright pastel highlighters that don’t bleed.", img: "https://via.placeholder.com/300" }
+        ];
+
+        function addToCart(id) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            cart.push(id);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            updateCartCount();
+        }
+
+        function updateCartCount() {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            document.getElementById("cart-count").innerText = cart.length;
+        }
+
+        function loadProduct() {
+            const params = new URLSearchParams(window.location.search);
+            const id = parseInt(params.get("id"));
+            const product = products[id];
+
+            if (!product) {
+                document.getElementById("product-container").innerHTML = "<p>Product not found.</p>";
+                return;
+            }
+
+            document.getElementById("product-container").innerHTML = `
+                <div class='product-detail'>
+                    <img src="${product.img}" />
+                    <div>
+                        <h2>${product.name}</h2>
+                        <p class="price">$${product.price.toFixed(2)}</p>
+                        <p>${product.description}</p>
+                        <button onclick="addToCart(${product.id})">Add to Cart</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        updateCartCount();
+        loadProduct();
+    </script>
+</body>
+</html>
