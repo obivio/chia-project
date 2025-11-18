@@ -1,59 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PencilPros | Stationery Shop</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PencilPros | Stationery Shop</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>PencilPros</h1>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
-        </nav>
-    </header>
+<header>
+<h1>PencilPros</h1>
+<nav>
+<a href="index.html">Home</a>
+<a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+</nav>
+</header>
 
-    <main>
-        <h2>Featured Stationery</h2>
-        <div class="products" id="product-list"></div>
-    </main>
 
-    <script>
-        const products = [
-            { id: 0, name: "UltraSmooth Pencil", price: 2.99, img: "https://via.placeholder.com/150" },
-            { id: 1, name: "Premium Notebook", price: 7.49, img: "https://via.placeholder.com/150" },
-            { id: 2, name: "Gel Pen Set", price: 5.99, img: "https://via.placeholder.com/150" },
-            { id: 3, name: "Highlighter Pack", price: 4.99, img: "https://via.placeholder.com/150" }
-        ];
+<main>
+<h2>Featured Stationery</h2>
+<div class="products" id="product-list"></div>
+</main>
 
-        function addToCart(id) {
-            let cart = JSON.parse(localStorage.getItem("cart")) || [];
-            cart.push(id);
-            localStorage.setItem("cart", JSON.stringify(cart));
-            updateCartCount();
-        }
 
-        function updateCartCount() {
-            let cart = JSON.parse(localStorage.getItem("cart")) || [];
-            document.getElementById("cart-count").innerText = cart.length;
-        }
+<script>
+const products = [
+{ id: 0, name: "UltraSmooth Pencil", price: 2.99, img: "images/pencil.jpg" },
+{ id: 1, name: "Premium Notebook", price: 7.49, img: "images/notebook.jpg" },
+{ id: 2, name: "Gel Pen Set", price: 5.99, img: "images/pens.jpg" },
+{ id: 3, name: "Highlighter Pack", price: 4.99, img: "images/highlighters.jpg" }
+];
 
-        function renderProducts() {
-            const container = document.getElementById("product-list");
-            container.innerHTML = products.map(p => `
-                <div class="product-card">
-                    <img src="${p.img}" alt="${p.name}">
-                    <h3>${p.name}</h3>
-                    <p>$${p.price.toFixed(2)}</p>
-                    <button onclick="addToCart(${p.id})">Add to Cart</button>
-                </div>
-            `).join('');
-        }
 
-        updateCartCount();
-        renderProducts();
-    </script>
+function addToCart(id) {
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+cart.push(id);
+localStorage.setItem("cart", JSON.stringify(cart));
+updateCartCount();
+}
+
+
+function updateCartCount() {
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+document.getElementById("cart-count").innerText = cart.length;
+}
+
+
+function renderProducts() {
+const container = document.getElementById("product-list");
+container.innerHTML = products.map(p => `
+<a href="product.html?id=${p.id}" class="product-link">
+<div class="product-card">
+<img src="${p.img}" alt="${p.name}">
+<h3>${p.name}</h3>
+<p>$${p.price.toFixed(2)}</p>
+<button onclick="event.preventDefault(); addToCart(${p.id});">Add to Cart</button>
+</div>
+</a>
+`).join('');
+}
+
+
+updateCartCount();
+renderProducts();
+</script>
 </body>
 </html>
