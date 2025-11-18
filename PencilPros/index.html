@@ -1,17 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PencilPros | Stationery Shop</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-<header>
-<h1>PencilPros</h1>
-<nav>
-<a href="index.html">Home</a>
-<a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
 </nav>
 </header>
 
@@ -65,3 +52,18 @@ renderProducts();
 </script>
 </body>
 </html>
+
+
+<!-- Add this script block to wire pages together -->
+<script>
+// Example product list (replace with your own images)
+const products = [
+{ id: 1, name: "Premium Graphite Pencil", price: 2.99, image: "images/pencil1.jpg" },
+{ id: 2, name: "Mechanical Pencil 0.7mm", price: 4.49, image: "images/pencil2.jpg" },
+{ id: 3, name: "Color Pencil Set (12)", price: 6.99, image: "images/pencil3.jpg" }
+];
+
+
+// Save to localStorage so all pages can access
+localStorage.setItem('products', JSON.stringify(products));
+</script>
