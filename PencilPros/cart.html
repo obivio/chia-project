@@ -24,15 +24,16 @@
 
     <script>
         const products = [
-            { id: 0, name: "UltraSmooth Pencil", price: 2.99, img: "https://via.placeholder.com/150" },
-            { id: 1, name: "Premium Notebook", price: 7.49, img: "https://via.placeholder.com/150" },
-            { id: 2, name: "Gel Pen Set", price: 5.99, img: "https://via.placeholder.com/150" },
-            { id: 3, name: "Highlighter Pack", price: 4.99, img: "https://via.placeholder.com/150" }
+            { id: 0, name: "UltraSmooth Pencil", price: 2.99, image: "pencil.jpg" },
+            { id: 1, name: "Premium Notebook", price: 7.49, image: "notebook.jpg" },
+            { id: 2, name: "Gel Pen Set", price: 5.99, image: "pens.jpg" },
+            { id: 3, name: "Highlighter Pack", price: 4.99, image: "highlighters.jpg" }
         ];
 
         function updateCartCount() {
             let cart = JSON.parse(localStorage.getItem("cart")) || [];
-            document.getElementById("cart-count").innerText = cart.length;
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById("cart-count").innerText = totalQty;
         }
 
         function renderCart() {
@@ -46,15 +47,21 @@
                 return;
             }
 
-            container.innerHTML = cart.map(id => {
-                const item = products[id];
-                total += item.price;
+            container.innerHTML = cart.map(item => {
+                const product = products.find(p => p.id === item.id);
+                total += product.price * item.qty;
                 return `
                     <div class='cart-item'>
-                        <img src="${item.img}" />
+                        <img src='assets/${product.image}' alt='${product.name}' class='cart-thumb'/>
                         <div>
-                            <h4>${item.name}</h4>
-                            <p>$${item.price.toFixed(2)}</p>
+                            <h4>${product.name}</h4>
+                            <p>$${product.price.toFixed(2)}</p>
+                            <p>Quantity: 
+                                <button onclick='changeQty(${item.id}, -1)'>-</button>
+                                ${item.qty}
+                                <button onclick='changeQty(${item.id}, 1)'>+</button>
+                            </p>
+                            <button onclick='removeFromCart(${item.id})'>Remove</button>
                         </div>
                     </div>
                 `;
@@ -63,8 +70,33 @@
             document.getElementById("total-price").innerText = total.toFixed(2);
         }
 
+        function changeQty(id, delta) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const item = cart.find(i => i.id === id);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            renderCart();
+            updateCartCount();
+        }
+
+        function removeFromCart(id) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            cart = cart.filter(i => i.id !== id);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            renderCart();
+            updateCartCount();
+        }
+
+        document.getElementById("checkout-btn").addEventListener("click", () => {
+            window.location.href = "checkout.html";
+        });
+
         updateCartCount();
         renderCart();
     </script>
 </body>
 </html>
+
+

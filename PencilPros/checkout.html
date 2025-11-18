@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PencilPros | Checkout</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>PencilPros</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Checkout</h2>
+        <div id="order-summary"></div>
+        <h3>Total: $<span id="total-price">0.00</span></h3>
+
+        <form id="checkout-form" class="checkout-form">
+            <label>Name on Card</label>
+            <input type="text" id="card-name" required>
+
+            <label>Card Number</label>
+            <input type="text" id="card-number" minlength="16" maxlength="16" required>
+
+            <label>Expiration (MM/YY)</label>
+            <input type="text" id="exp" placeholder="09/27" required>
+
+            <label>CVV</label>
+            <input type="text" id="cvv" minlength="3" maxlength="4" required>
+
+            <button type="submit">Submit Order</button>
+        </form>
+
+        <p id="confirmation" style="display:none; font-size:1.2rem; font-weight:bold; margin-top:20px;">Order Submitted! Thank you for shopping with PencilPros.</p>
+    </main>
+
+    <script>
+        const products = [
+            { id: 0, name: "UltraSmooth Pencil", price: 2.99, image: "pencil.jpg" },
+            { id: 1, name: "Premium Notebook", price: 7.49, image: "notebook.jpg" },
+            { id: 2, name: "Gel Pen Set", price: 5.99, image: "pens.jpg" },
+            { id: 3, name: "Highlighter Pack", price: 4.99, image: "highlighters.jpg" }
+        ];
+
+        function updateCartCount() {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById("cart-count").innerText = totalQty;
+        }
+
+        function renderOrderSummary() {
+            const container = document.getElementById("order-summary");
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            let total = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = "<p>Your cart is empty.</p>";
+                document.getElementById("total-price").innerText = "0.00";
+                return;
+            }
+
+            container.innerHTML = cart.map(item => {
+                const product = products.find(p => p.id === item.id);
+                total += product.price * item.qty;
+                return `
+                    <div class='order-item'>
+                        <img src='assets/${product.image}' alt='${product.name}' class='cart-thumb'>
+                        <p>${product.name} x ${item.qty} - $${(product.price * item.qty).toFixed(2)}</p>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById("total-price").innerText = total.toFixed(2);
+        }
+
+        document.getElementById("checkout-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const orderData = {
+                name: document.getElementById("card-name").value,
+                number: document.getElementById("card-number").value,
+                exp: document.getElementById("exp").value,
+                cvv: document.getElementById("cvv").value,
+                cart: JSON.parse(localStorage.getItem("cart")) || []
+            };
+
+            console.log("Order sent to backend:", orderData);
+
+            document.getElementById("checkout-form").style.display = "none";
+            document.getElementById("confirmation").style.display = "block";
+
+            localStorage.removeItem("cart");
+            updateCartCount();
+        });
+
+        updateCartCount();
+        renderOrderSummary();
+    </script>
+</body>
+</html>
