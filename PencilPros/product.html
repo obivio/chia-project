@@ -6,70 +6,76 @@
     <title>PencilPros | Product</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <header>
-        <h1>PencilPros</h1>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
-        </nav>
-    </header>
+<header>
+    <h1>PencilPros</h1>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+    </nav>
+</header>
 
-    <main>
-        <div id="product-container" class="product-page"></div>
-    </main>
+<main>
+    <div id="product-container" class="product-page"></div>
+</main>
 
-    <script>
-        const products = [
-            { id: 0, name: "UltraSmooth Pencil", price: 2.99, description: "A perfectly balanced graphite pencil for everyday writing.", image: "pencil.jpg" },
-            { id: 1, name: "Premium Notebook", price: 7.49, description: "A 200-page unlined spiral notebook.", image: "notebook.jpg" },
-            { id: 2, name: "Gel & Graphite Set", price: 5.99, description: "Smooth gel ink pen and graphite pencil duo.", image: "pens.jpg" },
-            { id: 3, name: "Highlighter Pack", price: 4.99, description: "Bright highlighters that don’t bleed.", image: "highlighters.jpg" }
-        ];
+<script>
+    const products = [
+        { id: 0, name: "UltraSmooth Pencil", price: 2.99, description: "A perfectly balanced graphite pencil for everyday writing.", img: "assets/pencil.jpg" },
+        { id: 1, name: "Premium Notebook", price: 7.49, description: "A 200-page lined notebook with reinforced binding.", img: "assets/notebook.jpg" },
+        { id: 2, name: "Gel & Graphite Set", price: 5.99, description: "Smooth gel ink pens for writing and drawing.", img: "assets/pens.jpg" },
+        { id: 3, name: "Highlighter Pack", price: 4.99, description: "Soft pastel highlighters that don’t bleed through pages.", img: "assets/highlighters.jpg" }
+    ];
 
-        function updateCartCount() {
-            let cart = JSON.parse(localStorage.getItem("cart")) || [];
-            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
-            document.getElementById("cart-count").innerText = totalQty;
+    function addToCart(id) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let existing = cart.find(item => item.id === id);
+
+        if (existing) {
+            existing.qty += 1;
+        } else {
+            cart.push({ id: id, qty: 1 });
         }
 
-        function addToCart(id) {
-            let cart = JSON.parse(localStorage.getItem("cart")) || [];
-            const existing = cart.find(item => item.id === id);
-            if (existing) existing.qty += 1;
-            else cart.push({ id: id, qty: 1 });
-            localStorage.setItem("cart", JSON.stringify(cart));
-            updateCartCount();
-            alert('Added to cart!');
-        }
-
-        function loadProduct() {
-            const params = new URLSearchParams(window.location.search);
-            const id = parseInt(params.get("id"));
-            const product = products.find(p => p.id === id);
-
-            if (!product) {
-                document.getElementById("product-container").innerHTML = "<p>Product not found.</p>";
-                return;
-            }
-
-            document.getElementById("product-container").innerHTML = `
-                <div class='product-detail'>
-                    <img src='assets/${product.image}' alt='${product.name}' class='product-large'/>
-                    <div>
-                        <h2>${product.name}</h2>
-                        <p class='price'>$${product.price.toFixed(2)}</p>
-                        <p>${product.description}</p>
-                        <button onclick='addToCart(${product.id})'>Add to Cart</button>
-                    </div>
-                </div>
-            `;
-        }
-
+        localStorage.setItem("cart", JSON.stringify(cart));
         updateCartCount();
-        loadProduct();
-    </script>
+        alert("Added to cart!");
+    }
+
+    function updateCartCount() {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+        document.getElementById("cart-count").innerText = totalQty;
+    }
+
+    function loadProduct() {
+        const params = new URLSearchParams(window.location.search);
+        const id = parseInt(params.get("id"));
+        const product = products[id];
+
+        if (!product) {
+            document.getElementById("product-container").innerHTML = "<p>Product not found.</p>";
+            return;
+        }
+
+        document.getElementById("product-container").innerHTML = `
+            <div class="product-detail">
+                <img src="${product.img}" class="product-img-large">
+                <div>
+                    <h2>${product.name}</h2>
+                    <p class="price">$${product.price.toFixed(2)}</p>
+                    <p>${product.description}</p>
+                    <button onclick="addToCart(${product.id})">Add to Cart</button>
+                </div>
+            </div>
+        `;
+    }
+
+    updateCartCount();
+    loadProduct();
+</script>
+
 </body>
 </html>
-
 
