@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PencilPros | Cart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<header>
+    <h1>PencilPros</h1>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+        <a href="delete.html">Delete My Data</a>
+        <a href="#" onclick="logout()">Logout</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Your Cart</h2>
+    <div id="cart-items"></div>
+
+    <h3>Total: $<span id="total-price">0.00</span></h3>
+
+    <a href="checkout.html">
+        <button id="checkout-btn">Checkout</button>
+    </a>
+</main>
+
+<script>
+
+    function requireLogin() {
+        const userId = localStorage.getItem("user_id");
+        if (!userId) {
+                window.location.href = "login.html";
+        }
+        return userId;
+    }
+    
+    const currentUserId = requireLogin();
+
+    function logout() {
+        // Remove all user info + cart
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("user_name");
+        localStorage.removeItem("cart");
+
+        // Confirm to user
+        alert("You've been logged out.");
+
+        // Redirect to login page
+        window.location.href = "login.html";
+    }
+
+
+
+    // Product data (must match index.html & product.html)
+    const products = [
+        { id: 0, name: "UltraSmooth Pencil", price: 2.99, img: "assets/pencil.jpg" },
+        { id: 1, name: "Premium Notebook", price: 7.49, img: "assets/notebook.jpg" },
+        { id: 2, name: "Gel & Graphite Set", price: 5.99, img: "assets/pens.jpg" },
+        { id: 3, name: "Highlighter Pack", price: 4.99, img: "assets/highlighters.jpg" }
+    ];
+
+    // Update header cart count
+    function updateCartCount() {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+        document.getElementById("cart-count").innerText = totalQty;
+    }
+
+    // Render cart items
+    function renderCart() {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const container = document.getElementById("cart-items");
+        let total = 0;
+
+        if (cart.length === 0) {
+            container.innerHTML = "<p>Your cart is empty.</p>";
+            document.getElementById("total-price").innerText = "0.00";
+            return;
+        }
+
+        container.innerHTML = cart.map(item => {
+            const product = products[item.id];
+            const subtotal = product.price * item.qty;
+            total += subtotal;
+
+            return `
+                <div class="cart-item">
+                    <img src="${product.img}" class="cart-thumb" alt="${product.name}">
+                    <div class="cart-info">
+                        <h4>${product.name}</h4>
+                        <p>Price: $${product.price.toFixed(2)}</p>
+                        <p>Subtotal: $${subtotal.toFixed(2)}</p>
+
+                        <div class="qty-controls">
+                            <button onclick="changeQty(${item.id}, -1)">−</button>
+                            <span>${item.qty}</span>
+                            <button onclick="changeQty(${item.id}, 1)">+</button>
+                        </div>
+
+                        <button class="remove-btn" onclick="removeItem(${item.id})">Remove</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById("total-price").innerText = total.toFixed(2);
+    }
+
+    // Change quantity (+ or -)
+    function changeQty(id, delta) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const item = cart.find(i => i.id === id);
+
+        if (!item) return;
+
+        item.qty += delta;
+
+        if (item.qty <= 0) {
+            cart = cart.filter(i => i.id !== id);
+        }
+
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartCount();
+        renderCart();
+    }
+
+    // Remove item from cart
+    function removeItem(id) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cart = cart.filter(i => i.id !== id);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartCount();
+        renderCart();
+    }
+
+    // Initialize on page load
+    updateCartCount();
+    renderCart();
+</script>
+
+</body>
+</html>

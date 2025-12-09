@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PencilPros | Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>PencilPros</h1>
+</header>
+
+<main>
+  <h2>Sign In</h2>
+  <form id="login-form" class="checkout-form">
+    <label>User ID</label>
+    <input type="text" id="user-id" required>
+
+    <label>Name</label>
+    <input type="text" id="user-name" required>
+
+    <button type="submit">Continue</button>
+  </form>
+</main>
+
+<script>
+document.getElementById("login-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const userId = document.getElementById("user-id").value.trim();
+  const name   = document.getElementById("user-name").value.trim();
+
+  if (!userId || !name) {
+    alert("Please fill both fields");
+    return;
+  }
+
+  // Call PencilPros backend to create/update user (this hits runtime + DB)
+  const resp = await fetch("http://127.0.0.1:8000/user", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id: userId, name: name })
+  });
+
+  if (!resp.ok) {
+    alert("Error talking to PencilPros backend");
+    return;
+  }
+
+  // Store user id in localStorage for later (cart, checkout)
+  localStorage.setItem("user_id", userId);
+  localStorage.setItem("user_name", name);
+
+  // Go to home page
+  window.location.href = "index.html";
+});
+</script>
+</body>
+</html>

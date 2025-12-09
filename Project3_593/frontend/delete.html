@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PencilPros | Delete My Data</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>PencilPros</h1>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+        <a href="delete.html">Delete My Data</a>
+        <a href="#" onclick="logout()">Logout</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Delete My Data</h2>
+    <p>
+        This will delete your account and purchase data from PencilPros and any connected services
+        (like our PayPal-like payment processor).
+    </p>
+
+    <form id="delete-form" class="checkout-form">
+        <label>Your User ID</label>
+        <input type="text" id="user-id" required>
+        <button type="submit">Request Deletion</button>
+    </form>
+
+    <p id="delete-result" style="margin-top:20px; font-weight:bold;"></p>
+</main>
+
+<script>
+
+    function logout() {
+        // Remove all user info + cart
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("user_name");
+        localStorage.removeItem("cart");
+
+        // Confirm to user
+        alert("You've been logged out.");
+
+        // Redirect to login page
+        window.location.href = "login.html";
+    }
+
+
+function updateCartCount() {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+    document.getElementById("cart-count").innerText = totalQty;
+}
+
+// If user is logged in, pre-fill the user id field
+function prefillUserId() {
+    const stored = localStorage.getItem("user_id");
+    if (stored) {
+        document.getElementById("user-id").value = stored;
+    }
+}
+
+document.getElementById("delete-form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const userId = document.getElementById("user-id").value.trim();
+    if (!userId) {
+        alert("Please enter your user ID.");
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to delete all data for user "${userId}"? This cannot be undone.`)) {
+        return;
+    }
+
+    try {
+        const resp = await fetch(`http://127.0.0.1:8000/delete/${encodeURIComponent(userId)}`, {
+            method: "DELETE"
+        });
+
+        const resultEl = document.getElementById("delete-result");
+
+        if (!resp.ok) {
+            const text = await resp.text();
+            console.error("Delete error:", resp.status, text);
+            resultEl.textContent = "Deletion failed. Check console for details.";
+            resultEl.style.color = "red";
+            return;
+        }
+
+        const data = await resp.json();
+        console.log("Deletion response:", data);
+
+        // Clear local data if the logged-in user deleted themselves
+        const stored = localStorage.getItem("user_id");
+        if (stored === userId) {
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("user_name");
+            localStorage.removeItem("cart");
+            updateCartCount();
+        }
+
+        resultEl.textContent = "Your data deletion request has been processed.";
+        resultEl.style.color = "green";
+    } catch (err) {
+        console.error("Network error during delete:", err);
+        const resultEl = document.getElementById("delete-result");
+        resultEl.textContent = "Network error while contacting PencilPros.";
+        resultEl.style.color = "red";
+    }
+});
+
+// init
+updateCartCount();
+prefillUserId();
+</script>
+</body>
+</html>
